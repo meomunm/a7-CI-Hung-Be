@@ -7,14 +7,21 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 
+
 /**
  * Created by MeoMunm on 11/30/2016.
  */
 public class GameWindow extends Frame {
-    Image background;
-    Image plane3;
-    int planeX = 300;
-    int planeY = 300;
+    Image background;//khai bao cac vat the
+    Image plane1;
+    Image plane2;
+    Image enemy_plane_white_1;
+    Image enemy_plane_white_2;
+    Image enemy_plane_white_3;
+    int planeX = 500;
+    int planeY = 500;
+    int plane2_X = 300;
+    int plane2_Y = 500;
 
     public GameWindow() {
         setVisible(true);
@@ -57,8 +64,12 @@ public class GameWindow extends Frame {
             }
         });
         try {
-            background = ImageIO.read(new File("resources/background.png"));
-            plane3 = ImageIO.read(new File("resources/plane3.png"));
+            background = ImageIO.read(new File("resources/background.png"));//them duong dan file png, vi dang o thu muc techkid nen khong can them techkid/resources/xxx.png
+            plane1 = ImageIO.read(new File("resources/plane3.png"));
+            plane2 = ImageIO.read(new File("resources/plane2.png"));
+            enemy_plane_white_1 = ImageIO.read(new File("resources/enemy_plane_white_1.png"));
+            enemy_plane_white_2 = ImageIO.read(new File("resources/enemy_plane_white_1.png"));
+            enemy_plane_white_3 = ImageIO.read(new File("resources/enemy_plane_white_1.png"));
         } catch (IOException e) {
             System.out.println("Load Image Failed");
             e.printStackTrace();
@@ -67,6 +78,28 @@ public class GameWindow extends Frame {
             @Override
             public void keyTyped(KeyEvent keyEvent) {
                 System.out.println("keyTyped");
+                switch (keyEvent.getKeyChar()){
+
+                    case 'w':
+                        plane2_Y -=5;
+                        repaint();
+                        break;
+
+                    case 's':
+                        plane2_Y +=5;
+                        repaint();
+                        break;
+
+                    case 'a':
+                        plane2_X -=5;
+                        repaint();
+                        break;
+
+                    case 'd':
+                        plane2_X +=5;
+                        repaint();
+                        break;
+                }
             }
 
             @Override
@@ -75,24 +108,25 @@ public class GameWindow extends Frame {
                 switch (keyEvent.getKeyCode()) {
 
                     case KeyEvent.VK_UP:
-                        planeY -= 3;
+                        planeY -= 5;
                         repaint();
                         break;
 
                     case KeyEvent.VK_DOWN:
-                        planeY += 3;
+                        planeY += 5;
                         repaint();
                         break;
 
                     case KeyEvent.VK_LEFT:
-                        planeX -= 3;
+                        planeX -= 5;
                         repaint();
                         break;
 
                     case KeyEvent.VK_RIGHT:
-                        planeX += 3;
+                        planeX += 5;
                         repaint();
                         break;
+
 
                 }
             }
@@ -108,6 +142,10 @@ public class GameWindow extends Frame {
     @Override
     public void paint(Graphics graphics) {
         graphics.drawImage(background, 0, 0, 800, 600, null);
-        graphics.drawImage(plane3, planeX, planeY, 70, 51, null); //vi tri x, y, kich co may bay, null, X -, y |
+        graphics.drawImage(plane1, planeX, planeY, 70, 51, null); //vi tri x, y, kich co may bay, null, X -, y |
+        graphics.drawImage(plane2, plane2_X, plane2_Y, 70, 56, null);
+        graphics.drawImage(enemy_plane_white_1, 100,100,32,32,null);
+        graphics.drawImage(enemy_plane_white_2, 400, 100,32,32,null);
+        graphics.drawImage(enemy_plane_white_3, 700,100,32,32,null);
     }
 }
