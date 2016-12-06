@@ -1,46 +1,76 @@
+import controllers.BulletController;
+import controllers.KeySetting;
+import controllers.PlaneController;
+import models.BulletModel;
+import models.PlaneModel;
+import views.BulletView;
+import views.PlaneView;
+
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
+import java.security.Key;
+import java.util.Vector;
 
 /**
- * Created by MeoMunm on 11/30/2016.
+ * Created by MeoMunm on 12/4/2016.
  */
-public class GameWindow extends Frame {
-    Image background;//khai bao cac vat the
-    Image plane1;
-    Image plane2;
-    Image enemy_plane_white_1;
-    Image enemy_plane_white_2;
-    Image enemy_plane_white_3;
-    int planeX = 500;
-    int planeY = 500;
-    int plane2_X = 300;
-    int plane2_Y = 500;
+public class GameWindow extends JFrame implements Runnable {
+    Image background;
+
+    PlaneController planeController;
+    PlaneModel planeModel;
+    PlaneView planeView;
+    BulletModel bulletModel;
+    BulletView bulletView;
+    BulletController bulletController;
+
+    Vector<BulletController> bulletControllers;
+
+    BufferedImage backBuffer;
 
     public GameWindow() {
+        bulletControllers = new Vector<>();
+
+        planeModel = new PlaneModel(350, 500);
+        planeView = new PlaneView(loadImage("resources/plane3.png"));
+        planeController = new PlaneController(planeModel, planeView);
+        bulletView = new BulletView(loadImage("resources/bullet.png"));
+
+
+        planeController.keySetting = new KeySetting(
+                KeyEvent.VK_UP,
+                KeyEvent.VK_DOWN,
+                KeyEvent.VK_LEFT,
+                KeyEvent.VK_RIGHT);
+
         setVisible(true);
-        setSize(800, 600);// tao 1 windows
+        setSize(800, 600);
+
+        backBuffer = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+
         addWindowListener(new WindowListener() {
             @Override
             public void windowOpened(WindowEvent windowEvent) {
-                System.out.println("windowOpenned");
+                System.out.println("WindowOpened");
             }
 
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                System.out.println("windowClosing");
+                System.out.println("WindowClosing");
                 System.exit(0);
             }
 
             @Override
             public void windowClosed(WindowEvent windowEvent) {
-                System.out.println("windowClosed");
+                System.out.println("WindowClosed");
             }
 
             @Override
@@ -63,89 +93,72 @@ public class GameWindow extends Frame {
 
             }
         });
-        try {
-            background = ImageIO.read(new File("resources/background.png"));//them duong dan file png, vi dang o thu muc techkid nen khong can them techkid/resources/xxx.png
-            plane1 = ImageIO.read(new File("resources/plane3.png"));
-            plane2 = ImageIO.read(new File("resources/plane2.png"));
-            enemy_plane_white_1 = ImageIO.read(new File("resources/enemy_plane_white_1.png"));
-            enemy_plane_white_2 = ImageIO.read(new File("resources/enemy_plane_white_1.png"));
-            enemy_plane_white_3 = ImageIO.read(new File("resources/enemy_plane_white_1.png"));
-        } catch (IOException e) {
-            System.out.println("Load Image Failed");
-            e.printStackTrace();
-        }
+
+        background = loadImage("resources/background.png");
+
         addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent keyEvent) {
-                System.out.println("keyTyped");
-                switch (keyEvent.getKeyChar()){
+            public void keyTyped(KeyEvent e) {
+                System.out.println("Key Typed");
+            }
 
-                    case 'w':
-                        plane2_Y -=5;
-                        repaint();
-                        break;
+            @Override
+            public void keyPressed(KeyEvent e) {
+                System.out.println("Key Pressed");
+                planeController.keyPressed(e);
 
-                    case 's':
-                        plane2_Y +=5;
-                        repaint();
-                        break;
-
-                    case 'a':
-                        plane2_X -=5;
-                        repaint();
-                        break;
-
-                    case 'd':
-                        plane2_X +=5;
-                        repaint();
-                        break;
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    int x = planeModel.getX() + 35 - 6;
+                    int y = planeModel.getY() - 40;
+                    bulletModel = new BulletModel(x, y);
+                    bulletController = new BulletController(bulletModel, bulletView);
+                    bulletControllers.add(bulletController);
                 }
             }
 
             @Override
-            public void keyPressed(KeyEvent keyEvent) {
-                System.out.println("keyPressed");
-                switch (keyEvent.getKeyCode()) {
-
-                    case KeyEvent.VK_UP:
-                        planeY -= 5;
-                        repaint();
-                        break;
-
-                    case KeyEvent.VK_DOWN:
-                        planeY += 5;
-                        repaint();
-                        break;
-
-                    case KeyEvent.VK_LEFT:
-                        planeX -= 5;
-                        repaint();
-                        break;
-
-                    case KeyEvent.VK_RIGHT:
-                        planeX += 5;
-                        repaint();
-                        break;
-
-
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                System.out.println("keyReleased");
+            public void keyReleased(KeyEvent e) {
+                System.out.println("Key Released");
             }
         });
-        repaint();// pain chi thay doi khi co su thay doi?, repain = ve lai
+    }
+
+    private Image loadImage(String path) {
+        try {
+            Image image = ImageIO.read(new File(path));
+            return image;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void paint(Graphics graphics) {
-        graphics.drawImage(background, 0, 0, 800, 600, null);
-        graphics.drawImage(plane1, planeX, planeY, 70, 51, null); //vi tri x, y, kich co may bay, null, X -, y |
-        graphics.drawImage(plane2, plane2_X, plane2_Y, 70, 56, null);
-        graphics.drawImage(enemy_plane_white_1, 100,100,32,32,null);
-        graphics.drawImage(enemy_plane_white_2, 400, 100,32,32,null);
-        graphics.drawImage(enemy_plane_white_3, 700,100,32,32,null);
+    public void paint(Graphics g) {
+        Graphics backBufferGraphics = backBuffer.getGraphics();
+        backBufferGraphics.drawImage(background, 0, 0, 800, 600, null);
+        planeController.draw(backBufferGraphics);
+        for (BulletController bulletController : bulletControllers) {
+            bulletController.draw(backBufferGraphics);
+        }
+
+        g.drawImage(backBuffer,
+                0, 0, 800, 600, null);
     }
+
+    public void run() {
+        while (true) {
+            try {
+                this.repaint();
+                Thread.sleep(17);
+                for (BulletController bulletController : bulletControllers) {
+                    bulletController.bulletModel.move(0, -5);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }
