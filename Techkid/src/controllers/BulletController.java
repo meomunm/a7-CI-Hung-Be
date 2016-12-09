@@ -1,23 +1,27 @@
 package controllers;
 
-import models.BulletModel;
-import views.BulletView;
+import models.Model;
+import utills.Utills;
+import views.View;
 
-import java.awt.*;
 
 /**
  * Created by MeoMunm on 12/6/2016.
  */
-public class BulletController {
-    public BulletModel bulletModel;
-    public BulletView bulletView;
-
-    public BulletController(BulletModel bulletModel, BulletView bulletView) {
-        this.bulletModel = bulletModel;
-        this.bulletView = bulletView;
+public class BulletController extends Controller {
+    public BulletController(Model model, View view) {
+        super(model, view);
     }
 
-    public void draw(Graphics g){
-        bulletView.draw(g, bulletModel);
+    public void run() {
+        this.model.move(0, -5);
+    }
+
+    public static BulletController createBullet(int x, int y){
+        BulletController bulletController = new BulletController(
+                new Model(x, y, 13, 33),
+                new View(Utills.loadImage("resources/bullet.png"))
+        );
+        return bulletController;
     }
 }

@@ -1,49 +1,37 @@
-import controllers.BulletController;
-import controllers.KeySetting;
-import controllers.PlaneController;
-import models.BulletModel;
-import models.PlaneModel;
-import views.BulletView;
-import views.PlaneView;
+import controllers.*;
+import utills.Utills;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.security.Key;
+import java.util.Random;
 import java.util.Vector;
 
 /**
  * Created by MeoMunm on 12/4/2016.
  */
-public class GameWindow extends JFrame implements Runnable {
+public class GameWindow extends Frame implements Runnable {
     Image background;
 
     PlaneController planeController;
-    PlaneModel planeModel;
-    PlaneView planeView;
-    BulletModel bulletModel;
-    BulletView bulletView;
-    BulletController bulletController;
+    EnemyController enemyController;
 
     Vector<BulletController> bulletControllers;
+    Vector<EnemyController> enemyControllers;
+    Vector<EnmBullletController> enmBullletControllers;
 
     BufferedImage backBuffer;
 
     public GameWindow() {
         bulletControllers = new Vector<>();
+        enemyControllers = new Vector<>();
+        enmBullletControllers = new Vector<>();
 
-        planeModel = new PlaneModel(350, 500);
-        planeView = new PlaneView(loadImage("resources/plane3.png"));
-        planeController = new PlaneController(planeModel, planeView);
-        bulletView = new BulletView(loadImage("resources/bullet.png"));
-
+        planeController = PlaneController.createPlane(400, 500);
+        enemyController = EnemyController.createEnemy(400, 100);
 
         planeController.keySetting = new KeySetting(
                 KeyEvent.VK_UP,
@@ -94,7 +82,7 @@ public class GameWindow extends JFrame implements Runnable {
             }
         });
 
-        background = loadImage("resources/background.png");
+        background = Utills.loadImage("resources/background.png");
 
         addKeyListener(new KeyListener() {
             @Override
@@ -108,10 +96,9 @@ public class GameWindow extends JFrame implements Runnable {
                 planeController.keyPressed(e);
 
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    int x = planeModel.getX() + 35 - 6;
-                    int y = planeModel.getY() - 40;
-                    bulletModel = new BulletModel(x, y);
-                    bulletController = new BulletController(bulletModel, bulletView);
+                    int x = planeController.getModel().getX() + 35 - 6;
+                    int y = planeController.getModel().getY() - 40;
+                    BulletController bulletController = BulletController.createBullet(x, y);
                     bulletControllers.add(bulletController);
                 }
             }
@@ -123,23 +110,17 @@ public class GameWindow extends JFrame implements Runnable {
         });
     }
 
-    private Image loadImage(String path) {
-        try {
-            Image image = ImageIO.read(new File(path));
-            return image;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     @Override
-    public void paint(Graphics g) {
+    public void update(Graphics g) {
         Graphics backBufferGraphics = backBuffer.getGraphics();
         backBufferGraphics.drawImage(background, 0, 0, 800, 600, null);
         planeController.draw(backBufferGraphics);
+        enemyController.draw(backBufferGraphics);
         for (BulletController bulletController : bulletControllers) {
             bulletController.draw(backBufferGraphics);
+        }
+        for (EnmBullletController enmBullletController : enmBullletControllers) {
+            enmBullletController.draw(backBufferGraphics);
         }
 
         g.drawImage(backBuffer,
@@ -147,13 +128,55 @@ public class GameWindow extends JFrame implements Runnable {
     }
 
     public void run() {
+        int em_khong_nghi_dc_cach_nao_hay_hon = 250;
+        boolean dontDelete = true;
         while (true) {
             try {
                 this.repaint();
                 Thread.sleep(17);
                 for (BulletController bulletController : bulletControllers) {
-                    bulletController.bulletModel.move(0, -5);
+                    bulletController.run();
                 }
+
+                for (int i = 0; i < bulletControllers.size(); i++) {
+                    if (bulletControllers.get(i).getModel().getY() < 0)
+                        bulletControllers.remove(bulletControllers.get(i));
+                }
+
+                if (enemyController.getModel().getY() >= 600 | dontDelete) {
+                    dontDelete = false;
+                    Random rd = new Random();
+                    int range = 769;
+                    int xrd = rd.nextInt(range);
+                    enemyController = EnemyController.createEnemy(xrd, 0);
+                    enemyControllers.add(enemyController);
+                    int x = enemyController.getModel().getX();
+                    int y = enemyController.getModel().getY() + 20;
+                    EnmBullletController enmBullletController = EnmBullletController.createEnmBulletController(x, y);
+                    enmBullletControllers.add(enmBullletController);
+                }
+                if (enemyController.getModel().getY() == em_khong_nghi_dc_cach_nao_hay_hon){
+                    int x = enemyController.getModel().getX();
+                    int y = enemyController.getModel().getY() + 20;
+                    EnmBullletController enmBullletController = EnmBullletController.createEnmBulletController(x, y);
+                    enmBullletControllers.add(enmBullletController);
+                }
+
+                for (int i = 0; i < enemyControllers.size(); i++) {
+                    if (enemyControllers.get(i).getModel().getY() == 600)
+                        enemyControllers.remove(enemyControllers.get(i));
+                }
+
+                for (int i = 0; i < enmBullletControllers.size(); i++) {
+                    if (enmBullletControllers.get(i).getModel().getY() == 600)
+                        enmBullletControllers.remove(enmBullletControllers.get(i));
+                }
+
+                for (EnmBullletController enmBullletController: enmBullletControllers){
+                    enmBullletController.run();
+                }
+
+                enemyController.run();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
