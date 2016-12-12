@@ -1,36 +1,19 @@
 package models;
 
 /**
- * Created by MeoMunm on 12/7/2016.
+ * Created by MeoMunm on 12/9/2016.
  */
 public class Model {
     private int x;
     private int y;
-    private int width;
-    private int height;
+    private int WIDTH;
+    private int HEIGHT;
 
     public Model(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public int getWidth() {
-
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
+        this.WIDTH = width;
+        this.HEIGHT = height;
     }
 
     public int getX() {
@@ -41,6 +24,14 @@ public class Model {
         return y;
     }
 
+    public int getWidth() {
+        return WIDTH;
+    }
+
+    public int getHeight() {
+        return HEIGHT;
+    }
+
     public void setX(int x) {
         this.x = x;
     }
@@ -49,8 +40,28 @@ public class Model {
         this.y = y;
     }
 
+    public void setWidth(int width) {
+        this.WIDTH = width;
+    }
+
+    public void setHeight(int height) {
+        this.HEIGHT = height;
+    }
+
     public void move(int dx, int dy){
         x += dx;
         y += dy;
+    }
+
+    public int getMidX() {
+        return this.x + this.WIDTH/2;
+    }
+
+    public int getMidY() {
+        return this.y + this.HEIGHT/2;
+    }
+
+    public int bottom(){
+        return this.y + HEIGHT;
     }
 }

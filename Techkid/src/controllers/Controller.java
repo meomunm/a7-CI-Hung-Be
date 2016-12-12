@@ -6,11 +6,11 @@ import views.View;
 import java.awt.*;
 
 /**
- * Created by MeoMunm on 12/7/2016.
+ * Created by MeoMunm on 12/9/2016.
  */
 public class Controller {
-    protected Model model;
-    protected View view;
+    Model model;
+    View view;
 
     public Controller(Model model, View view) {
         this.model = model;
@@ -21,12 +21,12 @@ public class Controller {
         return model;
     }
 
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
     public View getView() {
         return view;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
     }
 
     public void setView(View view) {

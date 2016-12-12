@@ -1,7 +1,7 @@
 package controllers;
 
 /**
- * Created by MeoMunm on 12/5/2016.
+ * Created by MeoMunm on 12/9/2016.
  */
 public class KeySetting {
     public int keyUp;
@@ -15,5 +15,4 @@ public class KeySetting {
         this.keyLeft = keyLeft;
         this.keyRight = keyRight;
     }
-
 }

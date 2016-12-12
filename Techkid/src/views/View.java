@@ -5,7 +5,7 @@ import models.Model;
 import java.awt.*;
 
 /**
- * Created by MeoMunm on 12/7/2016.
+ * Created by MeoMunm on 12/9/2016.
  */
 public class View {
     Image image;
@@ -14,7 +14,7 @@ public class View {
         this.image = image;
     }
 
-    public void draw(Graphics  g, Model model){
-        g.drawImage(image,model.getX() ,model.getY() ,model.getWidth() , model.getHeight(),null);
+    public void draw(Graphics g, Model model){
+        g.drawImage(image, model.getX(), model.getY(), model.getWidth(), model.getHeight(), null);
     }
 }
