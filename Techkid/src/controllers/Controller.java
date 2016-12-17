@@ -37,6 +37,7 @@ public class Controller {
 
     }
 
+
     public void draw(Graphics g){
         view.draw(g, model);
     }

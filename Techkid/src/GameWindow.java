@@ -2,6 +2,7 @@ import controllers.BulletController;
 import controllers.EnemyController;
 import controllers.KeySetting;
 import controllers.PlaneController;
+import controllers.managers.BodyManager;
 import controllers.managers.EnemyControllerManager;
 import utills.Utills;
 
@@ -17,6 +18,7 @@ import java.util.Vector;
  * Created by MeoMunm on 12/9/2016.
  */
 public class GameWindow extends Frame implements Runnable {
+    private Font fontHP = new Font("Arial", Font.PLAIN, 20);
     Image backGround;
     PlaneController planeController;
     BulletController bulletController;
@@ -28,8 +30,8 @@ public class GameWindow extends Frame implements Runnable {
     BufferedImage backbuffer;
 
     public GameWindow() {
-        System.out.println();
         bulletControllers = new Vector<>();
+
         enemyControllerManager = new EnemyControllerManager();
 
         backbuffer = new BufferedImage(600, 800, BufferedImage.TYPE_INT_ARGB);
@@ -112,8 +114,8 @@ public class GameWindow extends Frame implements Runnable {
 
         backGround = Utills.loadImage("resources/background.png");
 
-
     }
+
 
     @Override
     public void update(Graphics g) {
@@ -123,24 +125,37 @@ public class GameWindow extends Frame implements Runnable {
         for(BulletController bulletController: bulletControllers) {
             bulletController.draw(bufferedGraphics);
         }
-
+        bufferedGraphics.setFont(fontHP);
+        String healthPlane = "HP: "+"\t"+ planeController.health;
+        bufferedGraphics.drawString( healthPlane,80,70);
+        if(running == false) {
+            bufferedGraphics.drawString("GAME OVER", 270, 390);
+        }
         enemyControllerManager.draw(bufferedGraphics);
         g.drawImage(backbuffer, 0, 0, 600, 800, null);
     }
+    boolean running =true;
 
     public void run() {
         try {
-            while (true) {
+            while (running) {
                 this.repaint();
                 Thread.sleep(17);
                 for (BulletController bulletController: bulletControllers){
                     bulletController.run();
                 }
+                BodyManager.instance.checkContact();
                 enemyControllerManager.run();
+                if (planeController.health <= 0){
+                    running = false;
 
+                }
             }
+            repaint();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 }
+

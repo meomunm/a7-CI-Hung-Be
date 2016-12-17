@@ -1,5 +1,9 @@
 package models;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
+
+import java.awt.*;
+
 /**
  * Created by MeoMunm on 12/9/2016.
  */
@@ -8,12 +12,21 @@ public class Model {
     private int y;
     private int WIDTH;
     private int HEIGHT;
+    private boolean isAlive = true;
 
     public Model(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.WIDTH = width;
         this.HEIGHT = height;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public void setAlive(boolean alive) {
+        isAlive = alive;
     }
 
     public int getX() {
@@ -48,7 +61,7 @@ public class Model {
         this.HEIGHT = height;
     }
 
-    public void move(int dx, int dy){
+    public void move(double dx, double dy){
         x += dx;
         y += dy;
     }
@@ -63,5 +76,15 @@ public class Model {
 
     public int bottom(){
         return this.y + HEIGHT;
+    }
+
+    public Rectangle getRect(){
+        return new Rectangle(x, y, WIDTH, HEIGHT);
+    }
+
+    public boolean interects(Model other){
+        Rectangle rect1 = this.getRect();
+        Rectangle rect2 = other.getRect();
+        return rect1.intersects(rect2);
     }
 }
