@@ -1,11 +1,18 @@
+import controllers.Body;
+import controllers.manangers.BodyManager;
+
+import java.lang.management.GarbageCollectorMXBean;
+
 /**
- * Created by MeoMunm on 12/9/2016.
+ * Created by apple on 11/30/16.
  */
 public class Program {
     public static void main(String[] args) {
-        GameWindow gameWindow = new GameWindow();
+        System.out.println("Hello Android 7");
 
+        GameWindow gameWindow = new GameWindow();
         Thread thread = new Thread(gameWindow);
         thread.start();
+
     }
 }

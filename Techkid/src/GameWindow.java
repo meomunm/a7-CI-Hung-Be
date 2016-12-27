@@ -1,12 +1,13 @@
-import controllers.BulletController;
-import controllers.EnemyController;
-import controllers.KeySetting;
-import controllers.PlaneController;
-import controllers.managers.BodyManager;
-import controllers.managers.EnemyControllerManager;
-import utills.Utills;
+import controllers.*;
+import controllers.bomb.BombController;
+import controllers.manangers.BodyManager;
+import controllers.manangers.BombControllerManager;
+import controllers.manangers.ControllerManager;
+import controllers.manangers.EnemyControllerManager;
 
 import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -14,148 +15,145 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.util.Vector;
 
+import static utils.Utils.loadImage;
+
+// Data abstraction
+
 /**
- * Created by MeoMunm on 12/9/2016.
+ * Created by apple on 11/30/16.
  */
 public class GameWindow extends Frame implements Runnable {
-    private Font fontHP = new Font("Arial", Font.PLAIN, 20);
-    Image backGround;
-    PlaneController planeController;
-    BulletController bulletController;
-    EnemyControllerManager enemyControllerManager;
+    Image background;
 
-    Vector<BulletController> bulletControllers;
+    BufferedImage backBuffer;
+    GameSetting gameSetting;
+    Font fontHP = new Font("Arial", Font.BOLD, 20);
 
-
-    BufferedImage backbuffer;
+    Vector<BaseController> controllers;
 
     public GameWindow() {
-        bulletControllers = new Vector<>();
 
-        enemyControllerManager = new EnemyControllerManager();
+        configSettings();
 
-        backbuffer = new BufferedImage(600, 800, BufferedImage.TYPE_INT_ARGB);
+        controllers = new Vector<>();
+        controllers.add(ControllerManager.explosion);
+        controllers.add(new EnemyControllerManager());
+        controllers.add(PlaneController.instance);
+        controllers.add(BodyManager.instance);
+        controllers.add(ControllerManager.enemyBullet);
+        controllers.add(new BombControllerManager());
 
-        planeController = PlaneController.create(400, 500);
-
-        planeController.keySetting = new KeySetting(
-                KeyEvent.VK_UP,
-                KeyEvent.VK_DOWN,
-                KeyEvent.VK_LEFT,
-                KeyEvent.VK_RIGHT
-        );
 
         setVisible(true);
-        setSize(600,800);
+        setSize(gameSetting.getWidth(), gameSetting.getHeight());
+
+        backBuffer = new BufferedImage(gameSetting.getWidth(), gameSetting.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         addWindowListener(new WindowListener() {
             @Override
-            public void windowOpened(WindowEvent windowEvent) {
+            public void windowOpened(WindowEvent e) {
                 System.out.println("windowOpened");
             }
 
             @Override
-            public void windowClosing(WindowEvent windowEvent) {
+            public void windowClosing(WindowEvent e) {
                 System.out.println("windowClosing");
                 System.exit(0);
             }
 
             @Override
-            public void windowClosed(WindowEvent windowEvent) {
+            public void windowClosed(WindowEvent e) {
                 System.out.println("windowClosed");
-            }
-
-            @Override
-            public void windowIconified(WindowEvent windowEvent) {
 
             }
 
             @Override
-            public void windowDeiconified(WindowEvent windowEvent) {
+            public void windowIconified(WindowEvent e) {
 
             }
 
             @Override
-            public void windowActivated(WindowEvent windowEvent) {
+            public void windowDeiconified(WindowEvent e) {
 
             }
 
             @Override
-            public void windowDeactivated(WindowEvent windowEvent) {
+            public void windowActivated(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
 
             }
         });
+        background = loadImage("resources/background.png");
 
         addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent keyEvent) {
-                System.out.println("keyTyped");
+            public void keyTyped(KeyEvent e) {
+                System.out.println( " keyTyped");
             }
 
             @Override
-            public void keyPressed(KeyEvent keyEvent) {
-
+            public void keyPressed(KeyEvent e) {
                 System.out.println("keyPressed");
-                planeController.keyPressed(keyEvent);
-
-                if (keyEvent.getKeyCode() == KeyEvent.VK_SPACE) {
-                    int x = planeController.getModel().getX() + planeController.getModel().getWidth()/2 - 6 ;
-                    int y = planeController.getModel().getY() - 40;
-                    bulletController = BulletController.create(x , y);
-                    bulletControllers.add(bulletController);
-                }
+                PlaneController.instance.keyPressed(e);
             }
 
             @Override
-            public void keyReleased(KeyEvent keyEvent) {
+            public void keyReleased(KeyEvent e) {
                 System.out.println("keyReleased");
             }
         });
-
-        backGround = Utills.loadImage("resources/background.png");
-
     }
+
+    private void configSettings() {
+        PlaneController.instance.keySetting = new KeySetting(
+                KeyEvent.VK_UP,
+                KeyEvent.VK_DOWN,
+                KeyEvent.VK_LEFT,
+                KeyEvent.VK_RIGHT,
+                KeyEvent.VK_SPACE
+        );
+        gameSetting = GameSetting.instance;
+    }
+
+
+    //Utilities
 
 
     @Override
     public void update(Graphics g) {
-        Graphics bufferedGraphics = backbuffer.getGraphics();
-        bufferedGraphics.drawImage(backGround, 0, 0, 600, 800, null);
-        planeController.draw(bufferedGraphics);
-        for(BulletController bulletController: bulletControllers) {
-            bulletController.draw(bufferedGraphics);
-        }
-        bufferedGraphics.setFont(fontHP);
-        String healthPlane = "HP: "+"\t"+ planeController.health;
-        bufferedGraphics.drawString( healthPlane,80,70);
-        if(running == false) {
-            bufferedGraphics.drawString("GAME OVER", 270, 390);
-        }
-        enemyControllerManager.draw(bufferedGraphics);
-        g.drawImage(backbuffer, 0, 0, 600, 800, null);
-    }
-    boolean running =true;
+        // Prepare backbuffer
+        Graphics backBufferGraphics = backBuffer.getGraphics();
+        backBufferGraphics.drawImage(background, 0, 0, gameSetting.getWidth(), gameSetting.getHeight(), null);
 
+        for (BaseController baseController : this.controllers) {
+            baseController.draw(backBufferGraphics);
+        }
+        backBufferGraphics.setFont(fontHP);
+        String healthPlane = "HP: "+"\t"+ PlaneController.getHP();
+        backBufferGraphics.drawString( healthPlane,30,70);
+
+        // Update window
+        g.drawImage(backBuffer, 0, 0, gameSetting.getWidth(), gameSetting.getHeight(), null);
+    }
+
+    @Override
     public void run() {
-        try {
-            while (running) {
+        while (true) {
+            try {
                 this.repaint();
                 Thread.sleep(17);
-                for (BulletController bulletController: bulletControllers){
-                    bulletController.run();
-                }
-                BodyManager.instance.checkContact();
-                enemyControllerManager.run();
-                if (planeController.health <= 0){
-                    running = false;
 
+                for(BaseController baseController: controllers) {
+                    baseController.run();
                 }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            repaint();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 }
-

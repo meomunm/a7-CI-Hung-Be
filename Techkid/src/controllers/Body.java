@@ -3,9 +3,9 @@ package controllers;
 import models.Model;
 
 /**
- * Created by MeoMunm on 12/14/2016.
+ * Created by apple on 12/14/16.
  */
-public interface Body {
-    public abstract Model getModel();
-    public abstract void onContact(Body other);
+public interface Body { //Pure abstract
+    Model getModel();
+    void onContact(Body other);
 }
