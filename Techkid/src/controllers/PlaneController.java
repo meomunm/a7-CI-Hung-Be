@@ -99,7 +99,7 @@ public class PlaneController extends Controller implements Body {
         if (other instanceof EnemyBulletController) {
             System.out.println("Da trung dan");
             this.HP--;
-            if (this.HP <= 0) {
+            if (this.HP < 0) {
                 Utils.playSound("resources/planeBang.wav",false);
                 destroy();
                 this.model.setX(220);

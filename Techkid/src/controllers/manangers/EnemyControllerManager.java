@@ -4,6 +4,7 @@ import controllers.Controller;
 import controllers.bomb.BombController;
 import controllers.enemies.EnemyController;
 import controllers.enemies.EnemyType;
+import utils.Utils;
 
 /**
  * Created by apple on 12/10/16.
@@ -23,6 +24,7 @@ public class EnemyControllerManager extends ControllerManager {
                 controller.getModel().setAlive(false);
                 if(controller instanceof EnemyController){
                     ((EnemyController) controller).destroy();
+                    Utils.playSound("resources/enemyBang.wav", false);
                 }
                 BombController.isAliveBomb = true;
             }
